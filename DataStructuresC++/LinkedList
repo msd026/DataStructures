@@ -1,0 +1,449 @@
+//============================================================================
+// Name        : Step.cpp
+// Author      : Mahamadou Diallo
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+using namespace std;
+const int MAX_SIZE = 30;
+#include <iostream>
+#include "GenericList.cc"
+
+class List
+{
+private:
+	// list node definition
+	struct Node
+	{
+		int data;
+		Node *link;
+	};
+	Node *head; //the head of the list
+	Node *tail; //the tail of the list
+	Node *curr; //the current position in the list
+	int num_items;// the number of items in the list
+
+public:
+	// constructor
+	// remember that an empty list has a "size" of -1 and its "position" is at -1
+	List()
+	{
+		num_items = 0;
+		head = NULL;
+		tail = NULL;
+		curr = NULL;
+	}
+	// copy constructor
+	// clones the list l and sets the last element as the current
+	List(const List& l)
+	{
+		num_items= 0;
+		head = tail = curr = NULL;
+		Node* newNode = l.head;
+		while(newNode!=NULL)
+		{
+			InsertAfter(newNode->data);
+			newNode=newNode->link;
+		}
+	}
+	// copy constructor
+	// clones the list l and sets the last element as the current
+	void operator=(const List& l)
+	{
+		num_items= 0;
+		head = tail = curr = NULL; //check the longer way to do this
+		Node* newNode = l.head;
+		while(newNode!=NULL)
+		{
+			InsertAfter(newNode->data);
+			newNode=newNode->link;
+		}
+	}
+	// navigates to the beginning of the list
+	void First()
+	{
+		curr = head;
+	}
+	// navigates to the end of the list
+	// the end of the list is at the last valid item in the list
+	void Last()
+	{
+		curr = tail;
+	}
+	// navigates to the specified element (0-index)
+	// this should not be possible for an empty list
+	// this should not be possible for invalid positions
+	void SetPos(int pos)
+	{
+		Node *newNode = head;
+		int i = 0;
+		if (pos >= 0 || pos < num_items)
+			for (;; ++i)
+			{
+				if (i == pos)
+				{
+					curr = newNode;
+					break;
+				}
+				newNode = newNode->link;
+				if (newNode == 0)
+					break;
+			}
+	}
+	// navigates to the previous element
+	// this should not be possible for an empty list
+	// there should be no wrap-around
+	void Prev()
+	{
+		Node *newNode = head, *next;
+		if (curr == 0 || curr == newNode)
+			return;
+		for (;;)
+		{
+			next = newNode->link;
+			if (next == curr)
+			{
+				curr = newNode;
+				break;
+			}
+			newNode = next;
+		}
+	}
+	// navigates to the next element
+	// this should not be possible for an empty list
+	// there should be no wrap-around
+	void Next()
+	{
+		if (curr == 0)
+			curr = head;
+		else if (curr != tail)
+			curr = curr->link;
+	}
+	// returns the location of the current element (or -1)
+	int GetPos()
+	{
+		Node *newNode = head;
+		int i = 0;
+		if (curr > 0)
+
+			for (;; ++i)
+			{
+				if (newNode == curr)
+					return i;
+				newNode = newNode->link;
+				if (newNode == 0)
+					break;
+			}
+		return -1;
+	}
+	// returns the value of the current element (or -1)
+	int GetValue()
+	{
+		return curr == 0 ? -1 : curr->data;
+	}
+	// returns the size of the list
+	// size does not imply capacity
+	int GetSize()
+	{
+		return num_items;
+	}
+	// inserts an item before the current element
+	// the new element becomes the current
+	// this should not be possible for a full list
+	void InsertBefore(int data)
+	{
+		Node *newNode1 = head, *next, *newNode; //save the small way of doing this
+		if (num_items >= MAX_SIZE)
+			return;
+		newNode = new Node();
+		newNode->data = data;
+		if (newNode1 == 0)
+		{
+			newNode->link = 0;
+			tail = head = newNode;
+		}
+		else if (newNode1 == curr)
+		{
+			newNode->link = newNode1;
+			head = newNode;
+		} else
+			for (;;)
+			{
+				next = newNode1->link;
+				if (next == curr)
+				{
+					newNode->link = next;
+					newNode1->link = newNode;
+					break;
+				}
+				newNode1 = next;
+			}
+		curr = newNode;
+		num_items++;
+	}
+	// inserts an item after the current element
+	// the new element becomes the current
+	// this should not be possible for a full list
+	void InsertAfter(int data)
+	{
+		Node *newNode;//There is an easier way to do this. check program "homework"
+		if (num_items >= MAX_SIZE)
+			return;
+		newNode = new Node();
+		newNode->data = data;
+		if (curr == 0)
+		{
+			newNode->link = head;
+			if (tail == head)
+				tail = newNode;
+			head = newNode;
+		}
+		else
+		{
+			newNode->link = curr->link;
+			if (curr->link == 0)
+				tail = newNode;
+			curr->link = newNode;
+		}
+		curr = newNode;
+		num_items++;
+	}
+	// removes the current element (collapsing the list)
+	// this should not be possible for an empty list
+	void Remove() {
+		Node *newNode = head, *next, *newNode1;
+		if (curr == 0)
+			return;
+		if (curr == newNode)
+		{
+			next = newNode->link;
+			if (next == 0)
+				curr = tail = head = 0;
+			else
+			{
+				if (tail == newNode)
+					tail = next;
+				curr = head = next;
+			}
+			delete newNode;
+		}
+		else
+			for (;;)
+			{
+				next = newNode->link;
+				if (next == curr)
+				{
+					newNode1 = next->link;
+					if (newNode1 == 0)
+						curr = tail = newNode;
+					else
+					{
+						if (tail == next)
+							tail = newNode1;
+						curr = newNode1;
+					}
+					newNode->link = newNode1;
+					delete next;
+					break;
+				}
+				newNode = next;
+			}
+		num_items--;
+	}
+	// replaces the value of the current element with the specified value
+	// this should not be possible for an empty list
+	void Replace(int data)
+	{
+		if (curr != 0)
+			curr->data = data;
+	}
+	// returns if the list is empty
+	bool IsEmpty()
+	{
+		return num_items <= 0;
+	}
+	// returns if the list is full
+	bool IsFull()
+	{
+		return num_items >= MAX_SIZE;
+	}
+
+	List operator+(const List& l) const
+	{
+		List m(*this);
+		Node *newNode = m.tail, *newNode1 = l.head;
+		int i = m.num_items;
+		if (newNode1 == 0 || i >= MAX_SIZE)
+			return m;
+		if (newNode == 0)
+		{
+			m.head = newNode = new Node();
+			newNode->data = newNode1->data;
+			newNode1 = newNode1->link;
+			++i;
+		}
+		while (i < MAX_SIZE && newNode1 != 0)
+		{
+			newNode->link = new Node();
+			newNode = newNode->link;
+			newNode->data = newNode1->data;
+			newNode1 = newNode1->link;
+			++i;
+		}
+		newNode->link = 0;
+		m.curr = m.tail = newNode;
+		m.num_items = i;
+		return m;
+	}
+	// returns if two lists are equal (by value)
+	bool operator==(const List& l) const
+	{
+		Node *newNode1 = head, *newNode2 = l.head;
+		if (num_items != l.num_items)
+			return false;
+		while (newNode1 != 0)
+		{
+			if (newNode1->data != newNode2->data)
+				return false;
+			newNode1 = newNode1->link;
+			newNode2 = newNode2->link;
+		}
+		return true;
+	}
+	// returns if two lists are not equal (by value)
+	bool operator!=(const List& l) const
+			{
+		Node *newNode1 = head, *newNode2 = l.head;
+		if (num_items != l.num_items)
+			return true;
+		while (newNode1 != 0)
+		{
+			if (newNode1->data != newNode2->data)
+				return true;
+			newNode1 = newNode1->link;
+			newNode2 = newNode2->link;
+		}
+		return false;
+	}
+	// returns a string representation of the entire list (e.g., 1 2 3 4 5)
+	// the string "NULL" should be returned for an empty list
+	friend ostream& operator<<(ostream& out, const List &l)
+	{
+		Node *newNode = l.head;
+		if (l.num_items == 0)
+			out << "NULL";
+		else
+			while (newNode != 0)
+			{
+				out << newNode->data << " ";
+				newNode = newNode->link;
+			}
+		return out;
+	}
+};
+
+
+
+int main()
+{
+	List<int>a, b;
+
+	cout << " 0 " << a.GetValue() << endl;
+	cout << " 1 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << " 2 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	for (int i=1; i<=25; i++)
+	{
+		a.InsertAfter(i);
+		b.InsertBefore(i);
+	}
+	cout << " 3 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << " 4 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	List<int>c(a);
+	cout << " 5 " << "c(" << c.GetSize() << "/" << c.GetPos() << ") = " << c << endl;
+	a.Remove();
+	a.Remove();
+	for (int i=0; i<5; i++)
+		a.Prev();
+	a.Remove();
+	a.Remove();
+	cout << " 6 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	a.First();
+	a.Remove();
+	for (int i=0; i<a.GetSize()/2; a.Next(),i++)
+	{
+		a.Replace(a.GetValue()*5);
+		a.Next();
+	}
+	cout << " 7 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	a.Last();
+	a.Next();
+	a.Next();
+	a.Remove();
+	cout << " 8 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	a.SetPos(a.GetSize()*2/3);
+	a.Replace(a.GetValue()*12345);
+	cout << " 9 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	a.SetPos(a.GetSize());
+	a.Remove();
+	cout << "10 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	a.SetPos(a.GetSize()-1);
+	a.Remove();
+	cout << "11 " << "a is " << (!a.IsEmpty() ? "not " : "") << "empty\n";
+	cout << "12 " << "a is " << (!a.IsFull() ? "not " : "") << "full\n";
+	for (int i=0; i<1000; i++)
+		a.InsertBefore(i);
+	cout << "13 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "14 " << "c(" << c.GetSize() << "/" << c.GetPos() << ") = " << c << endl;
+	cout << "15 " << "a is " << (!a.IsEmpty() ? "not " : "") << "empty\n";
+	cout << "16 " << "a is " << (!a.IsFull() ? "not " : "") << "full\n";
+	List<int>d(a);
+	cout << "17 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "18 " << "d(" << d.GetSize() << "/" << d.GetPos() << ") = " << d << endl;
+	cout << "19 " << "a " << ((a == d) ? "==" : "!=") << " d\n";
+	a.Remove();
+	cout << "20 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "21 " << "d(" << d.GetSize() << "/" << d.GetPos() << ") = " << d << endl;
+	cout << "22 " << "a " << ((a != d) ? "!=" : "==") << " d\n";
+	a = c;
+	c.Remove();
+	cout << "23 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "24 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	cout << "25 " << "c(" << c.GetSize() << "/" << c.GetPos() << ") = " << c << endl;
+	cout << "26 " << "a " << ((a == c) ? "==" : "!=") << " c\n";
+	List<int>e = b + a;
+	cout << "27 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "28 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	cout << "29 " << "e(" << e.GetSize() << "/" << e.GetPos() << ") = " << e << endl;
+	for (int i=0; i<1000; i++)
+	{
+		b.Remove();
+		c.Remove();
+	}
+	cout << "30 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "31 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	cout << "32 " << "c(" << c.GetSize() << "/" << c.GetPos() << ") = " << c << endl;
+	cout << "33 " << "e(" << e.GetSize() << "/" << e.GetPos() << ") = " << e << endl;
+	List<int>f = b + a;
+	cout << "34 " << "a(" << a.GetSize() << "/" << a.GetPos() << ") = " << a << endl;
+	cout << "35 " << "b(" << b.GetSize() << "/" << b.GetPos() << ") = " << b << endl;
+	cout << "36 " << "f(" << f.GetSize() << "/" << f.GetPos() << ") = " << f << endl;
+
+	List<char> g;
+	for (char i='a'; i<='m'; i++)
+	{
+		g.InsertAfter(i);
+		g.InsertBefore(i+13);
+	}
+	cout << "37 " << "g(" << g.GetSize() << "/" << g.GetPos() << ") = " << g << endl;
+
+	List<float> h;
+	for (float i=2.71828; i<=3.14159; i+=.111)
+		h.InsertAfter(i);
+	h.InsertBefore(3.14159);
+	cout << "38 " << "h(" << h.GetSize() << "/" << h.GetPos() << ") = " << h << endl;
+
+	return 0;
+}

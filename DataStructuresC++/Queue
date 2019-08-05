@@ -1,0 +1,107 @@
+//============================================================================
+// Name        : Stack.cpp
+// Author      : Mahamadou Diallo
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+
+#include "GenericList.cc"
+
+using namespace std;
+
+
+template <class l_type>
+class Queue
+{
+private:
+
+	List <l_type> MYLIST;
+
+public:
+	// default constructor
+	Queue() : MYLIST()
+	{
+	}
+	// copy constructor
+	Queue(const Queue& s ) : MYLIST(s.MYLIST)
+	{
+
+	}
+	// assign operator
+	void operator=(const Queue& s)
+	{
+		MYLIST = s.MYLIST;
+	}
+
+	// Push value
+	void Enqueue(l_type var)
+	{
+		MYLIST.Last();
+		MYLIST.InsertAfter(var);
+	}
+
+	// Pop value
+	l_type Dequeue()
+	{
+		MYLIST.First();
+		l_type tmp = MYLIST.GetValue();
+		MYLIST.Remove();
+		return tmp;
+	}
+
+	// Peek value
+	l_type Peek()
+	{
+		MYLIST.First();
+		return MYLIST.GetValue();
+	}
+
+	// get the size
+	int Size()
+	{
+		return MYLIST.GetSize();
+	}
+
+	// whether is empty
+	bool IsEmpty()
+	{
+		return MYLIST.IsEmpty();
+	}
+	// whether is full
+	bool IsFull()
+	{
+		return MYLIST.IsFull();
+	}
+
+	// add two stack
+	Queue operator+(const Queue& s) const
+	{
+		Queue<l_type> var = *this;
+		var.MYLIST = MYLIST + s.MYLIST;
+		return var;
+	}
+
+	// operator==
+	bool operator==(const Queue& s) const
+		{
+		return MYLIST == s.MYLIST;
+		}
+
+	// operator!=
+	bool operator!=(const Queue& s) const
+		{
+		return MYLIST != s.MYLIST;
+		}
+
+	friend ostream& operator<<(ostream& out, const Queue &s)
+	{
+		out << s.MYLIST;
+		return out;
+	}
+
+};
+
+
